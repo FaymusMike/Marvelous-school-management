@@ -3,109 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marvelous School Management System - Login</title>
+    <title>School Management System - Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/styles.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </head>
 <body class="login-page">
     <div class="login-container">
         <div class="login-card">
             <div class="text-center mb-4">
-                <img src="assets/logo.png" alt="School Logo" class="logo" onerror="this.src='https://via.placeholder.com/100'">
-                <h2>Marvelous School Management</h2>
-                <p class="text-muted">Final Year Project - Prototype</p>
+                <img src="assets/logo.png" alt="School Logo" class="logo">
+                <h2>School Management System</h2>
             </div>
-            
-            <!-- Login Tabs -->
-            <ul class="nav nav-pills nav-justified mb-4" id="loginTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="login-tab" data-bs-toggle="pill" data-bs-target="#login" type="button" role="tab">
-                        <i class="bi bi-box-arrow-in-right"></i> Login
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="demo-tab" data-bs-toggle="pill" data-bs-target="#demo" type="button" role="tab">
-                        <i class="bi bi-person-badge"></i> Demo Access
-                    </button>
-                </li>
-            </ul>
-            
-            <div class="tab-content">
-                <!-- Regular Login -->
-                <div class="tab-pane fade show active" id="login" role="tabpanel">
-                    <form id="loginForm">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">
-                                <i class="bi bi-person"></i> Username
-                            </label>
-                            <input type="text" class="form-control" id="username" placeholder="Enter username" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">
-                                <i class="bi bi-lock"></i> Password
-                            </label>
-                            <div class="input-group">
-                                <input type="password" class="form-control" id="password" placeholder="Enter password" required>
-                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="rememberMe">
-                            <label class="form-check-label" for="rememberMe">Remember me</label>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-box-arrow-in-right"></i> Login
-                        </button>
-                    </form>
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" required>
                 </div>
-                
-                <!-- Demo Access -->
-                <div class="tab-pane fade" id="demo" role="tabpanel">
-                    <div class="text-center mb-3">
-                        <p class="text-muted">Select a role to access the demo system</p>
-                    </div>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary text-start demo-login" data-role="president">
-                            <i class="bi bi-star"></i> Login as <strong>President</strong>
-                            <small class="d-block text-muted">Full system access</small>
-                        </button>
-                        <button class="btn btn-outline-primary text-start demo-login" data-role="registrar">
-                            <i class="bi bi-person-workspace"></i> Login as <strong>Registrar</strong>
-                            <small class="d-block text-muted">Manage centers, departments, staff</small>
-                        </button>
-                        <button class="btn btn-outline-primary text-start demo-login" data-role="coordinator">
-                            <i class="bi bi-building"></i> Login as <strong>Center Coordinator</strong>
-                            <small class="d-block text-muted">View center details, submit reports</small>
-                        </button>
-                        <button class="btn btn-outline-primary text-start demo-login" data-role="department_head">
-                            <i class="bi bi-diagram-3"></i> Login as <strong>Department Head</strong>
-                            <small class="d-block text-muted">Manage department, submit reports</small>
-                        </button>
-                        <button class="btn btn-outline-primary text-start demo-login" data-role="lecturer">
-                            <i class="bi bi-person-video3"></i> Login as <strong>Lecturer</strong>
-                            <small class="d-block text-muted">View assignments, submit reports</small>
-                        </button>
-                    </div>
-                    <hr>
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i>
-                        <small>Demo mode uses sample data. No login credentials required.</small>
-                    </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" required>
                 </div>
-            </div>
-            
-            <div class="text-center mt-3">
-                <small class="text-muted">© 2024 Marvelous School - Final Year Project</small>
-            </div>
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/data-service.js"></script>
-    <script src="js/ui-components.js"></script>
-    <script src="js/login.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>
