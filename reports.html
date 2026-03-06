@@ -3,76 +3,383 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marvelous School - Reports</title>
+    <title>Marvelous School - Reports Dashboard</title>
+    
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/styles.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.bootstrap5.min.css">
+    
+    <!-- Flatpickr for date picking -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <!-- Toastr -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <!-- Custom Styles -->
+    <link href="css/styles.css" rel="stylesheet">
+    
+    <style>
+        /* Reports-specific styles */
+        .report-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .report-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+        }
+        
+        .report-card.submitted::before { background: #17a2b8; }
+        .report-card.pending::before { background: #ffc107; }
+        .report-card.reviewed::before { background: #007bff; }
+        .report-card.approved::before { background: #28a745; }
+        
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-badge.submitted { background: #e3f2fd; color: #1976d2; }
+        .status-badge.pending { background: #fff3e0; color: #f57c00; }
+        .status-badge.reviewed { background: #e8eaf6; color: #3f51b5; }
+        .status-badge.approved { background: #e8f5e9; color: #388e3c; }
+        
+        .priority-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        
+        .priority-badge.high { background: #ffebee; color: #c62828; }
+        .priority-badge.medium { background: #fff3e0; color: #ef6c00; }
+        .priority-badge.low { background: #e8f5e9; color: #2e7d32; }
+        
+        .stat-card {
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .stat-card i {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            font-size: 3rem;
+            opacity: 0.3;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding: 15px 0 15px 30px;
+            border-left: 2px solid #e9ecef;
+            margin-left: 15px;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 20px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #007bff;
+            border: 2px solid white;
+        }
+        
+        .timeline-item:last-child {
+            border-left-color: transparent;
+        }
+        
+        .filter-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border: none;
+            border-radius: 15px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+        
+        .attachment-preview {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .attachment-preview:hover {
+            background: #e9ecef;
+            transform: scale(1.1);
+        }
+        
+        .quick-filter-btn {
+            border-radius: 20px;
+            padding: 5px 15px;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+            border: 1px solid #dee2e6;
+            background: white;
+        }
+        
+        .quick-filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .report-analytics {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .filter-card {
+                background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+            }
+            
+            .quick-filter-btn {
+                background: #333;
+                color: #fff;
+                border-color: #404040;
+            }
+            
+            .timeline-item {
+                border-left-color: #404040;
+            }
+            
+            .attachment-preview {
+                background: #404040;
+            }
+            
+            .attachment-preview:hover {
+                background: #4d4d4d;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stat-card {
+                margin-bottom: 15px;
+            }
+            
+            .timeline-item {
+                padding-left: 20px;
+            }
+            
+            .quick-filter-btn {
+                margin: 5px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="wrapper">
+        <!-- Sidebar will be populated by JavaScript -->
         <nav id="sidebar" class="active"></nav>
 
         <div id="content">
-            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
                 <div class="container-fluid">
                     <button type="button" id="sidebarCollapse" class="btn btn-info">
                         <i class="bi bi-list"></i>
                     </button>
+                    
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb" class="mx-3">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Reports</li>
+                        </ol>
+                    </nav>
+                    
+                    <!-- Quick Actions -->
+                    <div class="btn-group me-2">
+                        <button class="btn btn-outline-secondary" id="refreshReports" title="Refresh (Ctrl+R)">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" id="exportReports" title="Export">
+                            <i class="bi bi-download"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" id="printReports" title="Print">
+                            <i class="bi bi-printer"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" id="helpReports" title="Help (?)">
+                            <i class="bi bi-question-circle"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- User Menu -->
                     <div class="ms-auto" id="userMenu"></div>
                 </div>
             </nav>
 
-            <div class="container-fluid">
+            <div class="container-fluid py-4">
                 <!-- Header -->
                 <div class="row mb-4">
                     <div class="col-12">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h2>
-                                <i class="bi bi-file-earmark-text"></i> Reports Dashboard
-                            </h2>
-                            <button class="btn btn-primary" id="generateReportBtn">
-                                <i class="bi bi-plus-circle"></i> Generate Report
-                            </button>
+                            <div>
+                                <h2 class="mb-1">
+                                    <i class="bi bi-file-earmark-text text-primary"></i> Reports Dashboard
+                                </h2>
+                                <p class="text-muted">Manage and track all reports across the organization</p>
+                            </div>
+                            <div>
+                                <button class="btn btn-success me-2" id="analyticsBtn">
+                                    <i class="bi bi-graph-up"></i> Analytics
+                                </button>
+                                <button class="btn btn-primary" id="generateReportBtn">
+                                    <i class="bi bi-plus-circle"></i> Generate Report
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Report Filters -->
+                <!-- Statistics Cards -->
+                <div class="row mb-4" id="reportStats">
+                    <!-- Populated by JavaScript -->
+                </div>
+
+                <!-- Quick Filters -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="filter-card p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-funnel"></i> Quick Filters
+                                </h6>
+                                <button class="btn btn-sm btn-link" id="clearAllFilters">Clear All</button>
+                            </div>
+                            <div class="d-flex flex-wrap align-items-center">
+                                <span class="me-2">Status:</span>
+                                <button class="btn btn-sm quick-filter-btn active" data-filter="status" data-value="all">All</button>
+                                <button class="btn btn-sm quick-filter-btn" data-filter="status" data-value="submitted">Submitted</button>
+                                <button class="btn btn-sm quick-filter-btn" data-filter="status" data-value="pending">Pending</button>
+                                <button class="btn btn-sm quick-filter-btn" data-filter="status" data-value="reviewed">Reviewed</button>
+                                <button class="btn btn-sm quick-filter-btn" data-filter="status" data-value="approved">Approved</button>
+                                
+                                <span class="ms-4 me-2">Priority:</span>
+                                <button class="btn btn-sm quick-filter-btn" data-filter="priority" data-value="all">All</button>
+                                <button class="btn btn-sm quick-filter-btn" data-filter="priority" data-value="high">High</button>
+                                <button class="btn btn-sm quick-filter-btn" data-filter="priority" data-value="medium">Medium</button>
+                                <button class="btn btn-sm quick-filter-btn" data-filter="priority" data-value="low">Low</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Filters -->
                 <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0">
+                            <i class="bi bi-sliders2"></i> Advanced Filters
+                        </h6>
+                    </div>
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-3">
                                 <label class="form-label">Report Type</label>
                                 <select class="form-select" id="filterType">
                                     <option value="">All Types</option>
-                                    <option value="lecturer_to_coordinator">Lecturer to Coordinator</option>
-                                    <option value="coordinator_to_registrar">Coordinator to Registrar</option>
-                                    <option value="registrar_to_president">Registrar to President</option>
+                                    <option value="lecturer_to_coordinator">Lecturer → Coordinator</option>
+                                    <option value="coordinator_to_registrar">Coordinator → Registrar</option>
+                                    <option value="registrar_to_president">Registrar → President</option>
                                     <option value="department_report">Department Report</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Status</label>
-                                <select class="form-select" id="filterStatus">
-                                    <option value="">All Status</option>
-                                    <option value="submitted">Submitted</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="reviewed">Reviewed</option>
-                                    <option value="approved">Approved</option>
+                                <label class="form-label">From</label>
+                                <select class="form-select" id="filterFrom">
+                                    <option value="">All Reporters</option>
+                                    <!-- Populated by JavaScript -->
                                 </select>
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label">From Date</label>
-                                <input type="date" class="form-control" id="filterStartDate">
+                                <input type="text" class="form-control date-picker" id="filterStartDate" placeholder="Start date">
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label">To Date</label>
-                                <input type="date" class="form-control" id="filterEndDate">
+                                <input type="text" class="form-control date-picker" id="filterEndDate" placeholder="End date">
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
                                 <button class="btn btn-primary w-100" id="applyFilters">
-                                    <i class="bi bi-funnel"></i> Apply
+                                    <i class="bi bi-funnel"></i> Apply Filters
                                 </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Date Range Shortcuts -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <small class="text-muted me-2">Quick dates:</small>
+                                <button class="btn btn-sm btn-outline-secondary me-1" data-days="7">Last 7 days</button>
+                                <button class="btn btn-sm btn-outline-secondary me-1" data-days="30">Last 30 days</button>
+                                <button class="btn btn-sm btn-outline-secondary me-1" data-days="90">Last 90 days</button>
+                                <button class="btn btn-sm btn-outline-secondary" data-days="365">This year</button>
                             </div>
                         </div>
                     </div>
@@ -82,37 +389,87 @@
                 <div class="row mb-4">
                     <div class="col-md-4">
                         <div class="card h-100">
-                            <div class="card-header bg-info text-white">
+                            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
                                 <h6 class="mb-0">
                                     <i class="bi bi-arrow-up"></i> Lecturer → Coordinator
                                 </h6>
+                                <span class="badge bg-light text-dark" id="lecturerCount">0</span>
                             </div>
-                            <div class="card-body" id="lecturerCoordinatorReports" style="max-height: 400px; overflow-y: auto;">
-                                <!-- Populated by JavaScript -->
+                            <div class="card-body p-0">
+                                <div id="lecturerCoordinatorReports" style="max-height: 400px; overflow-y: auto;" class="p-3">
+                                    <!-- Populated by JavaScript -->
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white text-center">
+                                <a href="#" class="text-decoration-none small" data-type="lecturer_to_coordinator">View All</a>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="card h-100">
-                            <div class="card-header bg-primary text-white">
+                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                                 <h6 class="mb-0">
                                     <i class="bi bi-arrow-up"></i> Coordinator → Registrar
                                 </h6>
+                                <span class="badge bg-light text-dark" id="coordinatorCount">0</span>
                             </div>
-                            <div class="card-body" id="coordinatorRegistrarReports" style="max-height: 400px; overflow-y: auto;">
-                                <!-- Populated by JavaScript -->
+                            <div class="card-body p-0">
+                                <div id="coordinatorRegistrarReports" style="max-height: 400px; overflow-y: auto;" class="p-3">
+                                    <!-- Populated by JavaScript -->
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white text-center">
+                                <a href="#" class="text-decoration-none small" data-type="coordinator_to_registrar">View All</a>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="card h-100">
-                            <div class="card-header bg-success text-white">
+                            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                                 <h6 class="mb-0">
                                     <i class="bi bi-arrow-up"></i> Registrar → President
                                 </h6>
+                                <span class="badge bg-light text-dark" id="presidentCount">0</span>
                             </div>
-                            <div class="card-body" id="registrarPresidentReports" style="max-height: 400px; overflow-y: auto;">
-                                <!-- Populated by JavaScript -->
+                            <div class="card-body p-0">
+                                <div id="registrarPresidentReports" style="max-height: 400px; overflow-y: auto;" class="p-3">
+                                    <!-- Populated by JavaScript -->
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white text-center">
+                                <a href="#" class="text-decoration-none small" data-type="registrar_to_president">View All</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header bg-white">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-bar-chart"></i> Report Trends
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="trendChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header bg-white">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-pie-chart"></i> Status Distribution
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="statusChart"></canvas>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -121,26 +478,32 @@
                 <!-- All Reports Table -->
                 <div class="card shadow-sm">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">All Reports</h5>
+                        <h5 class="mb-0">
+                            <i class="bi bi-table"></i> All Reports
+                        </h5>
                         <div>
-                            <button class="btn btn-sm btn-success me-2" id="exportReports">
-                                <i class="bi bi-download"></i> Export
+                            <button class="btn btn-sm btn-outline-primary me-2" id="exportSelected">
+                                <i class="bi bi-download"></i> Export Selected
                             </button>
-                            <button class="btn btn-sm btn-info" id="printReports">
-                                <i class="bi bi-printer"></i> Print
+                            <button class="btn btn-sm btn-outline-secondary" id="toggleFilters">
+                                <i class="bi bi-funnel"></i> Hide Filters
                             </button>
                         </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-hover" id="reportsTable">
+                            <table class="table table-hover" id="reportsTable" style="width: 100%;">
                                 <thead>
                                     <tr>
+                                        <th width="40">
+                                            <input type="checkbox" class="form-check-input" id="selectAllReports">
+                                        </th>
                                         <th>Date</th>
                                         <th>Type</th>
                                         <th>From</th>
                                         <th>To</th>
                                         <th>Content</th>
+                                        <th>Priority</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
@@ -151,17 +514,49 @@
                             </table>
                         </div>
                     </div>
+                    <div class="card-footer bg-white">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <span id="tableInfo">Showing 0 to 0 of 0 entries</span>
+                            </div>
+                            <div class="col-md-6">
+                                <nav aria-label="Table navigation">
+                                    <ul class="pagination justify-content-end mb-0" id="tablePagination"></ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Timeline -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-white">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-clock-history"></i> Recent Report Activity
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="reportTimeline" class="timeline">
+                                    <!-- Populated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Report Modal -->
+    <!-- Report Details Modal -->
     <div class="modal fade" id="reportModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Report Details</h5>
+                    <h5 class="modal-title">
+                        <i class="bi bi-file-text"></i> Report Details
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="reportDetails">
@@ -177,46 +572,364 @@
 
     <!-- Generate Report Modal -->
     <div class="modal fade" id="generateModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Generate New Report</h5>
+                    <h5 class="modal-title">
+                        <i class="bi bi-plus-circle"></i> Generate New Report
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="generateReportForm">
-                        <div class="mb-3">
-                            <label class="form-label">Report Type</label>
-                            <select class="form-select" id="newReportType" required>
-                                <option value="">Select type...</option>
-                                <option value="lecturer_to_coordinator">Lecturer to Coordinator</option>
-                                <option value="coordinator_to_registrar">Coordinator to Registrar</option>
-                                <option value="registrar_to_president">Registrar to President</option>
-                                <option value="department_report">Department Report</option>
-                            </select>
+                    <form id="generateReportForm" class="needs-validation" novalidate>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Report Type <span class="text-danger">*</span></label>
+                                <select class="form-select" id="newReportType" required>
+                                    <option value="">Select type...</option>
+                                    <option value="lecturer_to_coordinator">Lecturer to Coordinator</option>
+                                    <option value="coordinator_to_registrar">Coordinator to Registrar</option>
+                                    <option value="registrar_to_president">Registrar to President</option>
+                                    <option value="department_report">Department Report</option>
+                                </select>
+                                <div class="invalid-feedback">Please select a report type</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Priority</label>
+                                <select class="form-select" id="newReportPriority">
+                                    <option value="normal">Normal</option>
+                                    <option value="high">High</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
+                            </div>
                         </div>
+                        
                         <div class="mb-3">
-                            <label class="form-label">Title</label>
+                            <label class="form-label">Title <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="newReportTitle" required>
+                            <div class="invalid-feedback">Please enter a title</div>
                         </div>
+                        
                         <div class="mb-3">
-                            <label class="form-label">Content</label>
+                            <label class="form-label">Content <span class="text-danger">*</span></label>
                             <textarea class="form-control" id="newReportContent" rows="5" required></textarea>
+                            <div class="invalid-feedback">Please enter report content</div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Due Date</label>
+                                <input type="text" class="form-control date-picker" id="newReportDueDate">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Attachments</label>
+                                <input type="file" class="form-control" id="newReportAttachments" multiple>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Additional Notes</label>
+                            <textarea class="form-control" id="newReportNotes" rows="2"></textarea>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="submitNewReport">Generate</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="submitNewReport">
+                        <i class="bi bi-send"></i> Generate Report
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Analytics Modal -->
+    <div class="modal fade" id="analyticsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Report Analytics</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <canvas id="analyticsChart1"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <canvas id="analyticsChart2"></canvas>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Metric</th>
+                                            <th>Value</th>
+                                            <th>Trend</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="analyticsTable"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reports Help</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Quick Tips</h6>
+                    <ul>
+                        <li>Use filters to narrow down reports</li>
+                        <li>Click on any report card to view details</li>
+                        <li>Track report status through the workflow</li>
+                        <li>Export reports for offline analysis</li>
+                    </ul>
+                    
+                    <h6 class="mt-3">Status Workflow</h6>
+                    <p class="small">
+                        <span class="badge bg-info">Submitted</span> → 
+                        <span class="badge bg-warning">Pending</span> → 
+                        <span class="badge bg-primary">Reviewed</span> → 
+                        <span class="badge bg-success">Approved</span>
+                    </p>
+                    
+                    <h6>Keyboard Shortcuts</h6>
+                    <ul class="list-unstyled">
+                        <li><kbd>Ctrl+N</kbd> - New Report</li>
+                        <li><kbd>Ctrl+F</kbd> - Focus Search</li>
+                        <li><kbd>Ctrl+R</kbd> - Refresh</li>
+                        <li><kbd>Ctrl+E</kbd> - Export</li>
+                        <li><kbd>?</kbd> - Show Help</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Action Bar -->
+    <div class="bulk-action-bar" id="bulkActionBar">
+        <div class="d-flex align-items-center">
+            <span class="me-3" id="selectedCount">0 selected</span>
+            <div class="btn-group">
+                <button class="btn btn-sm btn-outline-primary" id="bulkUpdateStatus">
+                    <i class="bi bi-arrow-repeat"></i> Update Status
+                </button>
+                <button class="btn btn-sm btn-outline-info" id="bulkExport">
+                    <i class="bi bi-download"></i> Export
+                </button>
+                <button class="btn btn-sm btn-outline-danger" id="bulkDelete">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+            </div>
+            <button class="btn btn-sm btn-link ms-3" id="closeBulkBar">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="js/data-service.js"></script>
     <script src="js/ui-components.js"></script>
     <script src="js/sidebar.js"></script>
     <script src="js/reports.js"></script>
+    
+    <script>
+        // Initialize page features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize date pickers
+            flatpickr(".date-picker", {
+                dateFormat: "Y-m-d",
+                allowInput: true
+            });
+            
+            // Initialize DataTable
+            if ($('#reportsTable').length) {
+                var table = $('#reportsTable').DataTable({
+                    responsive: true,
+                    pageLength: 10,
+                    lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                    columnDefs: [
+                        { orderable: false, targets: [0, 8] },
+                        { width: "40px", targets: 0 }
+                    ],
+                    language: {
+                        search: "",
+                        searchPlaceholder: "Search reports..."
+                    }
+                });
+                
+                // Update table info
+                table.on('draw', function() {
+                    var info = table.page.info();
+                    $('#tableInfo').html(`Showing ${info.start + 1} to ${info.end} of ${info.recordsTotal} entries`);
+                });
+            }
+            
+            // Quick filters
+            $('.quick-filter-btn').click(function() {
+                $(this).toggleClass('active');
+                $(this).siblings().removeClass('active');
+                // Apply filter logic here
+            });
+            
+            $('#clearAllFilters').click(function() {
+                $('.quick-filter-btn').removeClass('active');
+                $('.quick-filter-btn[data-value="all"]').addClass('active');
+                $('#filterType, #filterFrom').val('');
+                $('#filterStartDate, #filterEndDate').val('');
+            });
+            
+            // Date range shortcuts
+            $('[data-days]').click(function() {
+                var days = $(this).data('days');
+                var endDate = new Date();
+                var startDate = new Date();
+                startDate.setDate(startDate.getDate() - days);
+                
+                $('#filterStartDate').val(startDate.toISOString().split('T')[0]);
+                $('#filterEndDate').val(endDate.toISOString().split('T')[0]);
+            });
+            
+            // Select all
+            $('#selectAllReports').change(function() {
+                $('.report-select').prop('checked', $(this).prop('checked'));
+                updateBulkBar();
+            });
+            
+            // Bulk actions
+            function updateBulkBar() {
+                var count = $('.report-select:checked').length;
+                if (count > 0) {
+                    $('#selectedCount').text(count + ' selected');
+                    $('#bulkActionBar').addClass('show');
+                } else {
+                    $('#bulkActionBar').removeClass('show');
+                }
+            }
+            
+            $(document).on('change', '.report-select', updateBulkBar);
+            
+            $('#closeBulkBar').click(function() {
+                $('#bulkActionBar').removeClass('show');
+                $('.report-select, #selectAllReports').prop('checked', false);
+            });
+            
+            // Toggle filters
+            $('#toggleFilters').click(function() {
+                $('.card.mb-4:eq(1)').slideToggle();
+                $(this).html($(this).text().includes('Hide') ? 
+                    '<i class="bi bi-funnel"></i> Show Filters' : 
+                    '<i class="bi bi-funnel"></i> Hide Filters');
+            });
+            
+            // Analytics button
+            $('#analyticsBtn').click(function() {
+                var modal = new bootstrap.Modal(document.getElementById('analyticsModal'));
+                
+                // Initialize analytics charts
+                var ctx1 = document.getElementById('analyticsChart1').getContext('2d');
+                new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [{
+                            label: 'Reports',
+                            data: [12, 19, 15, 17, 24, 20],
+                            borderColor: '#3498db'
+                        }]
+                    }
+                });
+                
+                var ctx2 = document.getElementById('analyticsChart2').getContext('2d');
+                new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Submitted', 'Pending', 'Reviewed', 'Approved'],
+                        datasets: [{
+                            data: [30, 20, 25, 25],
+                            backgroundColor: ['#17a2b8', '#ffc107', '#007bff', '#28a745']
+                        }]
+                    }
+                });
+                
+                modal.show();
+            });
+            
+            // View all by type
+            $('.card-footer a').click(function(e) {
+                e.preventDefault();
+                var type = $(this).data('type');
+                $('#filterType').val(type);
+                $('#applyFilters').click();
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+N for new report
+                if (e.ctrlKey && e.key === 'n') {
+                    e.preventDefault();
+                    $('#generateReportBtn').click();
+                }
+                
+                // Ctrl+F for search
+                if (e.ctrlKey && e.key === 'f') {
+                    e.preventDefault();
+                    $('.dataTables_filter input').focus();
+                }
+                
+                // Ctrl+R for refresh
+                if (e.ctrlKey && e.key === 'r') {
+                    e.preventDefault();
+                    $('#refreshReports').click();
+                }
+                
+                // ? for help
+                if (e.key === '?' && !e.ctrlKey) {
+                    e.preventDefault();
+                    $('#helpReports').click();
+                }
+            });
+            
+            // Help button
+            $('#helpReports').click(function() {
+                new bootstrap.Modal(document.getElementById('helpModal')).show();
+            });
+            
+            // Refresh button
+            $('#refreshReports').click(function() {
+                location.reload();
+            });
+            
+            // Initialize toastr
+            toastr.options = {
+                positionClass: 'toast-top-right',
+                progressBar: true,
+                timeOut: 3000
+            };
+        });
+    </script>
 </body>
 </html>

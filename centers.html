@@ -3,116 +3,511 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Management System - Centers</title>
+    <title>Marvelous School - Centers Management</title>
+    
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/styles.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.bootstrap5.min.css">
+    
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    
+    <!-- Leaflet Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <!-- Toastr -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <!-- Custom Styles -->
+    <link href="css/styles.css" rel="stylesheet">
+    
+    <style>
+        /* Centers-specific styles */
+        .center-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 180px;
+        }
+        
+        .center-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+        
+        .center-card .card-icon {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            font-size: 4rem;
+            opacity: 0.2;
+        }
+        
+        .center-card .card-stats {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.9rem;
+        }
+        
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-badge.active { background: #c8e6c9; color: #2e7d32; }
+        .status-badge.inactive { background: #ffcdd2; color: #c62828; }
+        
+        .coordinator-badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .stat-card {
+            border-radius: 15px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card i {
+            position: absolute;
+            right: 15px;
+            bottom: 15px;
+            font-size: 2.5rem;
+            opacity: 0.2;
+        }
+        
+        .location-map {
+            height: 200px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .quick-filter-btn {
+            border-radius: 20px;
+            padding: 5px 15px;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+            border: 1px solid #dee2e6;
+            background: white;
+        }
+        
+        .quick-filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .staff-avatars {
+            display: flex;
+            align-items: center;
+        }
+        
+        .staff-avatar-sm {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-right: -10px;
+            border: 2px solid white;
+            transition: all 0.3s ease;
+        }
+        
+        .staff-avatar-sm:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+        
+        .capacity-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .capacity-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .department-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            background: #e9ecef;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .department-tag:hover {
+            background: #dee2e6;
+            transform: scale(1.05);
+        }
+        
+        .activity-timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .activity-item {
+            position: relative;
+            padding: 15px 0;
+            border-left: 2px solid #e9ecef;
+            padding-left: 20px;
+        }
+        
+        .activity-item::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 20px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 2px solid white;
+        }
+        
+        .activity-item:last-child {
+            border-left-color: transparent;
+        }
+        
+        .bulk-action-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: 50px;
+            padding: 10px 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, 100%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+        
+        .bulk-action-bar.show {
+            display: block;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+        
+        .facility-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .facility-item:last-child {
+            border-bottom: none;
+        }
+        
+        .facility-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .stat-card {
+                background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+                color: white;
+            }
+            
+            .quick-filter-btn {
+                background: #333;
+                color: #fff;
+                border-color: #404040;
+            }
+            
+            .bulk-action-bar {
+                background: #2d2d2d;
+                color: white;
+            }
+            
+            .department-tag {
+                background: #404040;
+                color: #fff;
+            }
+            
+            .activity-item {
+                border-left-color: #404040;
+            }
+            
+            .staff-avatar-sm {
+                border-color: #2d2d2d;
+            }
+            
+            .facility-icon {
+                background: #404040;
+                color: #fff;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .center-card {
+                min-height: 160px;
+            }
+            
+            .stat-card {
+                margin-bottom: 15px;
+            }
+            
+            .quick-filter-btn {
+                margin: 5px;
+            }
+            
+            .bulk-action-bar {
+                width: 90%;
+                border-radius: 10px;
+            }
+            
+            .location-map {
+                height: 150px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="wrapper">
-        <nav id="sidebar" class="active">
-            <div class="sidebar-header">
-                <h3>School Management</h3>
-                <strong>SM</strong>
-            </div>
-
-            <ul class="list-unstyled components">
-                <li class="active">
-                    <a href="dashboard.html">
-                        <i class="bi bi-speedometer2"></i>
-                        Dashboard
-                    </a>
-                </li>
-                <li>
-                    <a href="#centersSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                        <i class="bi bi-building"></i>
-                        Centers
-                    </a>
-                    <ul class="collapse list-unstyled" id="centersSubmenu">
-                        <li>
-                            <a href="centers.html">Manage Centers</a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#departmentsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                        <i class="bi bi-diagram-3"></i>
-                        Departments
-                    </a>
-                    <ul class="collapse list-unstyled" id="departmentsSubmenu">
-                        <li>
-                            <a href="departments.html">Manage Departments</a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="staff.html">
-                        <i class="bi bi-people"></i>
-                        Staff Management
-                    </a>
-                </li>
-                <li>
-                    <a href="reports.html">
-                        <i class="bi bi-file-earmark-text"></i>
-                        Reports
-                    </a>
-                </li>
-            </ul>
-        </nav>
+        <!-- Sidebar will be populated by JavaScript -->
+        <nav id="sidebar" class="active"></nav>
 
         <!-- Page Content -->
         <div id="content">
-            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
                 <div class="container-fluid">
                     <button type="button" id="sidebarCollapse" class="btn btn-info">
                         <i class="bi bi-list"></i>
                     </button>
-                    <div class="ms-auto">
-                        <ul class="navbar-nav">
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-person-circle"></i> Registrar
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <li><a class="dropdown-item" href="#">Profile</a></li>
-                                    <li><a class="dropdown-item" href="#">Settings</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#" id="logout">Logout</a></li>
-                                </ul>
-                            </li>
-                        </ul>
+                    
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb" class="mx-3">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Centers</li>
+                        </ol>
+                    </nav>
+                    
+                    <!-- Quick Actions -->
+                    <div class="btn-group me-2">
+                        <button class="btn btn-outline-secondary" id="refreshCenters" title="Refresh (Ctrl+R)">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" id="exportCenters" title="Export">
+                            <i class="bi bi-download"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" id="printCenters" title="Print">
+                            <i class="bi bi-printer"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" id="helpCenters" title="Help (?)">
+                            <i class="bi bi-question-circle"></i>
+                        </button>
                     </div>
+                    
+                    <!-- User Menu -->
+                    <div class="ms-auto" id="userMenu"></div>
                 </div>
             </nav>
 
-            <div class="container-fluid">
-                <div class="row">
+            <div class="container-fluid py-4">
+                <!-- Header -->
+                <div class="row mb-4">
                     <div class="col-12">
-                        <h2>Centers Management</h2>
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between mb-3">
-                                    <h5 class="card-title">All Centers</h5>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCenterModal">
-                                        <i class="bi bi-plus"></i> Add New Center
-                                    </button>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h2 class="mb-1">
+                                    <i class="bi bi-building-fill text-primary"></i> Centers Management
+                                </h2>
+                                <p class="text-muted">Manage all learning and administrative centers</p>
+                            </div>
+                            <div>
+                                <button class="btn btn-success me-2" id="viewMapBtn">
+                                    <i class="bi bi-map"></i> View Map
+                                </button>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCenterModal">
+                                    <i class="bi bi-plus-lg"></i> Add New Center
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="row mb-4" id="centerStats">
+                    <!-- Populated by JavaScript -->
+                </div>
+
+                <!-- Quick Filters -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card bg-light">
+                            <div class="card-body py-3">
+                                <div class="d-flex flex-wrap align-items-center">
+                                    <span class="me-2 fw-bold">Quick Filters:</span>
+                                    <button class="btn btn-sm quick-filter-btn active" data-filter="all">All Centers</button>
+                                    <button class="btn btn-sm quick-filter-btn" data-filter="active">Active</button>
+                                    <button class="btn btn-sm quick-filter-btn" data-filter="inactive">Inactive</button>
+                                    <span class="ms-3 me-2">By Capacity:</span>
+                                    <button class="btn btn-sm quick-filter-btn" data-filter="high">High Capacity</button>
+                                    <button class="btn btn-sm quick-filter-btn" data-filter="medium">Medium</button>
+                                    <button class="btn btn-sm quick-filter-btn" data-filter="low">Low</button>
+                                    <button class="btn btn-sm btn-link ms-auto" id="clearFilters">Clear</button>
                                 </div>
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-hover" id="centersTable">
-                                        <thead>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Center Name</th>
-                                                <th>Location</th>
-                                                <th>Coordinator</th>
-                                                <th>Status</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <!-- Centers will be populated via JavaScript -->
-                                        </tbody>
-                                    </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center Cards (Grid View) -->
+                <div class="row mb-4" id="centerGrid">
+                    <!-- Populated by JavaScript -->
+                </div>
+
+                <!-- Main Card with Table -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-table"></i> All Centers
+                        </h5>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary me-2" id="toggleView">
+                                <i class="bi bi-grid"></i> Grid View
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="exportTable">
+                                <i class="bi bi-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="centersTable" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th width="40">
+                                            <input type="checkbox" class="form-check-input" id="selectAll">
+                                        </th>
+                                        <th>ID</th>
+                                        <th>Center Name</th>
+                                        <th>Location</th>
+                                        <th>Coordinator</th>
+                                        <th>Staff Count</th>
+                                        <th>Departments</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Centers will be populated via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <span id="tableInfo">Showing 0 to 0 of 0 entries</span>
+                            </div>
+                            <div class="col-md-6">
+                                <nav aria-label="Table navigation">
+                                    <ul class="pagination justify-content-end mb-0" id="tablePagination"></ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Facilities & Resources -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-white">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-building"></i> Center Facilities
+                                </h6>
+                            </div>
+                            <div class="card-body" id="facilitiesList">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-white">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-activity"></i> Recent Activity
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="centerActivity" class="activity-timeline">
+                                    <!-- Populated by JavaScript -->
                                 </div>
                             </div>
                         </div>
@@ -122,43 +517,574 @@
         </div>
     </div>
 
-    <!-- Add Center Modal -->
-    <div class="modal fade" id="addCenterModal" tabindex="-1" aria-labelledby="addCenterModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+    <!-- Add/Edit Center Modal -->
+    <div class="modal fade" id="addCenterModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addCenterModalLabel">Add New Center</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="addCenterModalLabel">
+                        <i class="bi bi-building-add"></i> Add New Center
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addCenterForm">
-                        <div class="mb-3">
-                            <label for="centerName" class="form-label">Center Name</label>
-                            <input type="text" class="form-control" id="centerName" required>
+                    <form id="addCenterForm" class="needs-validation" novalidate>
+                        <!-- Basic Information -->
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <h6 class="border-bottom pb-2">Basic Information</h6>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="centerLocation" class="form-label">Location</label>
-                            <input type="text" class="form-control" id="centerLocation" required>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Center Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="centerName" required>
+                                <div class="invalid-feedback">Please enter center name</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Center Code</label>
+                                <input type="text" class="form-control" id="centerCode" placeholder="e.g., MC, DT">
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="centerCoordinator" class="form-label">Coordinator</label>
-                            <select class="form-select" id="centerCoordinator" required>
-                                <option value="">Select Coordinator</option>
-                                <!-- Coordinators will be populated via JavaScript -->
-                            </select>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Location <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="centerLocation" required>
+                                <div class="invalid-feedback">Please enter location</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Coordinator <span class="text-danger">*</span></label>
+                                <select class="form-select select2" id="centerCoordinator" required>
+                                    <option value="">Select Coordinator...</option>
+                                    <!-- Coordinators will be populated via JavaScript -->
+                                </select>
+                                <div class="invalid-feedback">Please select a coordinator</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Contact Information -->
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <h6 class="border-bottom pb-2">Contact Information</h6>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="centerPhone" placeholder="e.g., +1 234 567 890">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="centerEmail" placeholder="center@school.edu">
+                            </div>
+                        </div>
+                        
+                        <!-- Capacity & Facilities -->
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <h6 class="border-bottom pb-2">Capacity & Facilities</h6>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Total Capacity</label>
+                                <input type="number" class="form-control" id="centerCapacity" value="100" min="0">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Number of Rooms</label>
+                                <input type="number" class="form-control" id="centerRooms" value="10" min="0">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Parking Spaces</label>
+                                <input type="number" class="form-control" id="centerParking" value="20" min="0">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Facilities Available</label>
+                                <div class="border rounded p-3">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="library" id="facilityLibrary">
+                                                <label class="form-check-label">Library</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="lab" id="facilityLab">
+                                                <label class="form-check-label">Computer Lab</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="cafeteria" id="facilityCafeteria">
+                                                <label class="form-check-label">Cafeteria</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="auditorium" id="facilityAuditorium">
+                                                <label class="form-check-label">Auditorium</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="sports" id="facilitySports">
+                                                <label class="form-check-label">Sports Facility</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="medical" id="facilityMedical">
+                                                <label class="form-check-label">Medical Center</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Department Assignments -->
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <h6 class="border-bottom pb-2">Department Assignments</h6>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Departments Located Here</label>
+                                <select class="form-select select2-multiple" id="centerDepartments" multiple>
+                                    <!-- Departments will be populated via JavaScript -->
+                                </select>
+                                <small class="text-muted">Select departments housed in this center</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Operating Hours -->
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <h6 class="border-bottom pb-2">Operating Hours</h6>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Open Time</label>
+                                <input type="time" class="form-control" id="openTime" value="08:00">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Close Time</label>
+                                <input type="time" class="form-control" id="closeTime" value="18:00">
+                            </div>
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Description / Notes</label>
+                                <textarea class="form-control" id="centerNotes" rows="3" placeholder="Additional information about the center..."></textarea>
+                            </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="saveCenterBtn">Save Center</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="saveCenterBtn">
+                        <i class="bi bi-check-lg"></i> Save Center
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- View Center Modal -->
+    <div class="modal fade" id="viewCenterModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Center Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="viewCenterContent">
+                    <!-- Populated by JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="editFromView">Edit</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Modal -->
+    <div class="modal fade" id="mapModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-map"></i> Centers Map View
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="centerMap" style="height: 500px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assign Staff Modal -->
+    <div class="modal fade" id="assignStaffModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign Staff to Center</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="assignStaffForm">
+                        <div class="mb-3">
+                            <label class="form-label">Select Staff Members</label>
+                            <select class="form-select select2-multiple" id="staffToAssign" multiple>
+                                <!-- Populated by JavaScript -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Assign Roles</label>
+                            <div class="border rounded p-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="coordinator" id="assignCoordinator">
+                                    <label class="form-check-label">Center Coordinator</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="lecturer" id="assignLecturer">
+                                    <label class="form-check-label">Lecturer</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="staff" id="assignStaff">
+                                    <label class="form-check-label">Support Staff</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmAssign">Assign</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title text-danger">
+                        <i class="bi bi-exclamation-triangle"></i> Confirm Delete
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <i class="bi bi-building-x fs-1 text-danger mb-3"></i>
+                    <p>Are you sure you want to delete <span id="deleteCenterName"></span>?</p>
+                    <p class="text-muted small">This will unassign all staff and departments from this center.</p>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Action Bar -->
+    <div class="bulk-action-bar" id="bulkActionBar">
+        <div class="d-flex align-items-center">
+            <span class="me-3" id="selectedCount">0 selected</span>
+            <div class="btn-group">
+                <button class="btn btn-sm btn-outline-success" id="bulkActivate">
+                    <i class="bi bi-check-circle"></i> Activate
+                </button>
+                <button class="btn btn-sm btn-outline-warning" id="bulkDeactivate">
+                    <i class="bi bi-pause-circle"></i> Deactivate
+                </button>
+                <button class="btn btn-sm btn-outline-primary" id="bulkAssignStaff">
+                    <i class="bi bi-person-plus"></i> Assign Staff
+                </button>
+                <button class="btn btn-sm btn-outline-info" id="bulkExport">
+                    <i class="bi bi-download"></i> Export
+                </button>
+            </div>
+            <button class="btn btn-sm btn-link ms-3" id="closeBulkBar">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Centers Management Help</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Quick Tips</h6>
+                    <ul>
+                        <li>Each center must have a designated coordinator</li>
+                        <li>View centers on map for geographical distribution</li>
+                        <li>Track capacity and resource utilization</li>
+                        <li>Assign departments and staff to centers</li>
+                    </ul>
+                    
+                    <h6 class="mt-3">Facility Types</h6>
+                    <ul>
+                        <li><i class="bi bi-building"></i> Main Campus - Full facilities</li>
+                        <li><i class="bi bi-shop"></i> Satellite Center - Limited facilities</li>
+                        <li><i class="bi bi-cup-hot"></i> Learning Center - Specialized</li>
+                    </ul>
+                    
+                    <h6>Keyboard Shortcuts</h6>
+                    <ul class="list-unstyled">
+                        <li><kbd>Ctrl+N</kbd> - New Center</li>
+                        <li><kbd>Ctrl+F</kbd> - Search</li>
+                        <li><kbd>Ctrl+R</kbd> - Refresh</li>
+                        <li><kbd>Ctrl+E</kbd> - Export</li>
+                        <li><kbd>Ctrl+M</kbd> - Show Map</li>
+                        <li><kbd>?</kbd> - Show Help</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/script.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="js/data-service.js"></script>
+    <script src="js/ui-components.js"></script>
+    <script src="js/sidebar.js"></script>
     <script src="js/centers.js"></script>
+    
+    <script>
+        // Initialize page features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Select2
+            $('.select2').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                dropdownParent: $('#addCenterModal')
+            });
+            
+            $('.select2-multiple').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                dropdownParent: $('#assignStaffModal')
+            });
+            
+            // Initialize DataTable
+            if ($('#centersTable').length) {
+                var table = $('#centersTable').DataTable({
+                    responsive: true,
+                    pageLength: 10,
+                    lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                    columnDefs: [
+                        { orderable: false, targets: [0, 8] },
+                        { width: "40px", targets: 0 }
+                    ],
+                    language: {
+                        search: "",
+                        searchPlaceholder: "Search centers..."
+                    }
+                });
+                
+                table.on('draw', function() {
+                    var info = table.page.info();
+                    $('#tableInfo').html(`Showing ${info.start + 1} to ${info.end} of ${info.recordsTotal} entries`);
+                });
+            }
+            
+            // Quick filters
+            $('.quick-filter-btn').click(function() {
+                $(this).toggleClass('active');
+                $(this).siblings().removeClass('active');
+                // Apply filter logic here
+            });
+            
+            $('#clearFilters').click(function() {
+                $('.quick-filter-btn').removeClass('active');
+                $('.quick-filter-btn[data-filter="all"]').addClass('active');
+            });
+            
+            // Toggle view
+            $('#toggleView').click(function() {
+                if ($(this).text().includes('Grid')) {
+                    $('#centerGrid').show();
+                    $('.table-responsive').hide();
+                    $(this).html('<i class="bi bi-table"></i> Table View');
+                } else {
+                    $('#centerGrid').hide();
+                    $('.table-responsive').show();
+                    $(this).html('<i class="bi bi-grid"></i> Grid View');
+                }
+            });
+            
+            // Select all
+            $('#selectAll').change(function() {
+                $('.center-select').prop('checked', $(this).prop('checked'));
+                updateBulkBar();
+            });
+            
+            // Bulk actions
+            function updateBulkBar() {
+                var count = $('.center-select:checked').length;
+                if (count > 0) {
+                    $('#selectedCount').text(count + ' selected');
+                    $('#bulkActionBar').addClass('show');
+                } else {
+                    $('#bulkActionBar').removeClass('show');
+                }
+            }
+            
+            $(document).on('change', '.center-select', updateBulkBar);
+            
+            $('#closeBulkBar').click(function() {
+                $('#bulkActionBar').removeClass('show');
+                $('.center-select, #selectAll').prop('checked', false);
+            });
+            
+            // Map view
+            $('#viewMapBtn').click(function() {
+                var modal = new bootstrap.Modal(document.getElementById('mapModal'));
+                
+                // Initialize map
+                var map = L.map('centerMap').setView([40.7128, -74.0060], 10);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+                
+                // Add markers for each center
+                var centers = [
+                    { name: 'Main Campus', lat: 40.7128, lng: -74.0060, status: 'active' },
+                    { name: 'Downtown Center', lat: 40.7580, lng: -73.9855, status: 'active' }
+                ];
+                
+                centers.forEach(function(center) {
+                    L.marker([center.lat, center.lng])
+                        .bindPopup(`<b>${center.name}</b><br>Status: ${center.status}`)
+                        .addTo(map);
+                });
+                
+                modal.show();
+                
+                // Fix map rendering in modal
+                setTimeout(function() {
+                    map.invalidateSize();
+                }, 500);
+            });
+            
+            // Export table
+            $('#exportTable').click(function() {
+                // Convert table to CSV
+                var csv = [];
+                var rows = $('#centersTable tr');
+                
+                rows.each(function() {
+                    var row = [];
+                    $(this).find('td, th').each(function() {
+                        if ($(this).find('input[type="checkbox"]').length) return;
+                        row.push($(this).text().trim());
+                    });
+                    csv.push(row.join(','));
+                });
+                
+                // Download
+                var csvContent = csv.join('\n');
+                var blob = new Blob([csvContent], { type: 'text/csv' });
+                var url = window.URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'centers_export.csv';
+                a.click();
+                
+                toastr.success('Centers exported successfully');
+            });
+            
+            // Help button
+            $('#helpCenters').click(function() {
+                new bootstrap.Modal(document.getElementById('helpModal')).show();
+            });
+            
+            // Refresh button
+            $('#refreshCenters').click(function() {
+                location.reload();
+            });
+            
+            // Print button
+            $('#printCenters').click(function() {
+                window.print();
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+N for new center
+                if (e.ctrlKey && e.key === 'n') {
+                    e.preventDefault();
+                    $('#addCenterModal').modal('show');
+                }
+                
+                // Ctrl+F for search
+                if (e.ctrlKey && e.key === 'f') {
+                    e.preventDefault();
+                    $('.dataTables_filter input').focus();
+                }
+                
+                // Ctrl+R for refresh
+                if (e.ctrlKey && e.key === 'r') {
+                    e.preventDefault();
+                    $('#refreshCenters').click();
+                }
+                
+                // Ctrl+M for map
+                if (e.ctrlKey && e.key === 'm') {
+                    e.preventDefault();
+                    $('#viewMapBtn').click();
+                }
+                
+                // ? for help
+                if (e.key === '?' && !e.ctrlKey) {
+                    e.preventDefault();
+                    $('#helpCenters').click();
+                }
+            });
+            
+            // Initialize toastr
+            toastr.options = {
+                positionClass: 'toast-top-right',
+                progressBar: true,
+                timeOut: 3000
+            };
+        });
+    </script>
 </body>
 </html>

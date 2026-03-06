@@ -3,117 +3,479 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Management System - Departments</title>
+    <title>Marvelous School - Departments Management</title>
+    
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/styles.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.bootstrap5.min.css">
+    
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <!-- Toastr -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <!-- Custom Styles -->
+    <link href="css/styles.css" rel="stylesheet">
+    
+    <style>
+        /* Departments-specific styles */
+        .department-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 160px;
+        }
+        
+        .department-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+        
+        .department-card .card-icon {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            font-size: 4rem;
+            opacity: 0.2;
+        }
+        
+        .department-card .card-stats {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.9rem;
+        }
+        
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-badge.active { background: #c8e6c9; color: #2e7d32; }
+        .status-badge.inactive { background: #ffcdd2; color: #c62828; }
+        
+        .reporting-badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        
+        .reporting-badge.registrar { background: #e3f2fd; color: #1976d2; }
+        .reporting-badge.president { background: #fff3e0; color: #f57c00; }
+        
+        .stat-card {
+            border-radius: 15px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card i {
+            position: absolute;
+            right: 15px;
+            bottom: 15px;
+            font-size: 2.5rem;
+            opacity: 0.2;
+        }
+        
+        .hierarchy-tree {
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .hierarchy-tree::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background: #e9ecef;
+        }
+        
+        .tree-node {
+            position: relative;
+            padding: 10px 0 10px 20px;
+        }
+        
+        .tree-node::before {
+            content: '';
+            position: absolute;
+            left: -2px;
+            top: 20px;
+            width: 20px;
+            height: 2px;
+            background: #e9ecef;
+        }
+        
+        .tree-node:last-child::after {
+            content: '';
+            position: absolute;
+            left: -2px;
+            top: 20px;
+            height: 100%;
+            width: 2px;
+            background: white;
+        }
+        
+        .quick-filter-btn {
+            border-radius: 20px;
+            padding: 5px 15px;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+            border: 1px solid #dee2e6;
+            background: white;
+        }
+        
+        .quick-filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e9ecef;
+        }
+        
+        .progress-bar {
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+        
+        .staff-avatars {
+            display: flex;
+            align-items: center;
+        }
+        
+        .staff-avatar-sm {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-right: -10px;
+            border: 2px solid white;
+        }
+        
+        .staff-avatar-sm:first-child {
+            margin-right: 0;
+        }
+        
+        .staff-avatar-sm:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+        
+        .activity-timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .activity-item {
+            position: relative;
+            padding: 15px 0;
+            border-left: 2px solid #e9ecef;
+            padding-left: 20px;
+        }
+        
+        .activity-item::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 20px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 2px solid white;
+        }
+        
+        .activity-item:last-child {
+            border-left-color: transparent;
+        }
+        
+        .bulk-action-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: 50px;
+            padding: 10px 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, 100%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+        
+        .bulk-action-bar.show {
+            display: block;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .stat-card {
+                background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+                color: white;
+            }
+            
+            .quick-filter-btn {
+                background: #333;
+                color: #fff;
+                border-color: #404040;
+            }
+            
+            .bulk-action-bar {
+                background: #2d2d2d;
+                color: white;
+            }
+            
+            .hierarchy-tree::before,
+            .tree-node::before,
+            .activity-item {
+                border-left-color: #404040;
+            }
+            
+            .staff-avatar-sm {
+                border-color: #2d2d2d;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .department-card {
+                min-height: 140px;
+            }
+            
+            .stat-card {
+                margin-bottom: 15px;
+            }
+            
+            .quick-filter-btn {
+                margin: 5px;
+            }
+            
+            .bulk-action-bar {
+                width: 90%;
+                border-radius: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="wrapper">
-        <!-- Sidebar (same as dashboard.html) -->
-        <nav id="sidebar" class="active">
-            <div class="sidebar-header">
-                <h3>School Management</h3>
-                <strong>SM</strong>
-            </div>
-
-            <ul class="list-unstyled components">
-                <li class="active">
-                    <a href="dashboard.html">
-                        <i class="bi bi-speedometer2"></i>
-                        Dashboard
-                    </a>
-                </li>
-                <li>
-                    <a href="#centersSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                        <i class="bi bi-building"></i>
-                        Centers
-                    </a>
-                    <ul class="collapse list-unstyled" id="centersSubmenu">
-                        <li>
-                            <a href="centers.html">Manage Centers</a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#departmentsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                        <i class="bi bi-diagram-3"></i>
-                        Departments
-                    </a>
-                    <ul class="collapse list-unstyled" id="departmentsSubmenu">
-                        <li>
-                            <a href="departments.html">Manage Departments</a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="staff.html">
-                        <i class="bi bi-people"></i>
-                        Staff Management
-                    </a>
-                </li>
-                <li>
-                    <a href="reports.html">
-                        <i class="bi bi-file-earmark-text"></i>
-                        Reports
-                    </a>
-                </li>
-            </ul>
-        </nav>
+        <!-- Sidebar will be populated by JavaScript -->
+        <nav id="sidebar" class="active"></nav>
 
         <!-- Page Content -->
         <div id="content">
-            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
                 <div class="container-fluid">
                     <button type="button" id="sidebarCollapse" class="btn btn-info">
                         <i class="bi bi-list"></i>
                     </button>
-                    <div class="ms-auto">
-                        <ul class="navbar-nav">
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-person-circle"></i> Registrar
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <li><a class="dropdown-item" href="#">Profile</a></li>
-                                    <li><a class="dropdown-item" href="#">Settings</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#" id="logout">Logout</a></li>
-                                </ul>
-                            </li>
-                        </ul>
+                    
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb" class="mx-3">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Departments</li>
+                        </ol>
+                    </nav>
+                    
+                    <!-- Quick Actions -->
+                    <div class="btn-group me-2">
+                        <button class="btn btn-outline-secondary" id="refreshDepts" title="Refresh (Ctrl+R)">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" id="exportDepts" title="Export">
+                            <i class="bi bi-download"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" id="printDepts" title="Print">
+                            <i class="bi bi-printer"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" id="helpDepts" title="Help (?)">
+                            <i class="bi bi-question-circle"></i>
+                        </button>
                     </div>
+                    
+                    <!-- User Menu -->
+                    <div class="ms-auto" id="userMenu"></div>
                 </div>
             </nav>
 
-            <div class="container-fluid">
-                <div class="row">
+            <div class="container-fluid py-4">
+                <!-- Header -->
+                <div class="row mb-4">
                     <div class="col-12">
-                        <h2>Departments Management</h2>
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between mb-3">
-                                    <h5 class="card-title">All Departments</h5>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
-                                        <i class="bi bi-plus"></i> Add New Department
-                                    </button>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h2 class="mb-1">
+                                    <i class="bi bi-diagram-3-fill text-primary"></i> Departments Management
+                                </h2>
+                                <p class="text-muted">Manage academic and administrative departments</p>
+                            </div>
+                            <div>
+                                <button class="btn btn-success me-2" id="viewHierarchyBtn">
+                                    <i class="bi bi-diagram-2"></i> View Hierarchy
+                                </button>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
+                                    <i class="bi bi-plus-lg"></i> New Department
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="row mb-4" id="deptStats">
+                    <!-- Populated by JavaScript -->
+                </div>
+
+                <!-- Quick Filters -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card bg-light">
+                            <div class="card-body py-3">
+                                <div class="d-flex flex-wrap align-items-center">
+                                    <span class="me-2 fw-bold">Quick Filters:</span>
+                                    <button class="btn btn-sm quick-filter-btn active" data-filter="all">All</button>
+                                    <button class="btn btn-sm quick-filter-btn" data-filter="active">Active</button>
+                                    <button class="btn btn-sm quick-filter-btn" data-filter="inactive">Inactive</button>
+                                    <span class="ms-3 me-2">Reporting To:</span>
+                                    <button class="btn btn-sm quick-filter-btn" data-filter="registrar">Registrar</button>
+                                    <button class="btn btn-sm quick-filter-btn" data-filter="president">President</button>
+                                    <button class="btn btn-sm btn-link ms-auto" id="clearFilters">Clear</button>
                                 </div>
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-hover" id="departmentsTable">
-                                        <thead>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Department Name</th>
-                                                <th>Head</th>
-                                                <th>Reporting To</th>
-                                                <th>Status</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <!-- Departments will be populated via JavaScript -->
-                                        </tbody>
-                                    </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Department Cards (Grid View) -->
+                <div class="row mb-4" id="deptGrid">
+                    <!-- Populated by JavaScript -->
+                </div>
+
+                <!-- Main Card with Table -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-table"></i> All Departments
+                        </h5>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary me-2" id="toggleView">
+                                <i class="bi bi-grid"></i> Grid View
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" id="exportTable">
+                                <i class="bi bi-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="departmentsTable" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th width="40">
+                                            <input type="checkbox" class="form-check-input" id="selectAll">
+                                        </th>
+                                        <th>ID</th>
+                                        <th>Department Name</th>
+                                        <th>Head</th>
+                                        <th>Staff Count</th>
+                                        <th>Reporting To</th>
+                                        <th>Status</th>
+                                        <th>Last Updated</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Departments will be populated via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <span id="tableInfo">Showing 0 to 0 of 0 entries</span>
+                            </div>
+                            <div class="col-md-6">
+                                <nav aria-label="Table navigation">
+                                    <ul class="pagination justify-content-end mb-0" id="tablePagination"></ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Timeline -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-white">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-clock-history"></i> Recent Department Activity
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="deptActivity" class="activity-timeline">
+                                    <!-- Populated by JavaScript -->
                                 </div>
                             </div>
                         </div>
@@ -123,46 +485,488 @@
         </div>
     </div>
 
-    <!-- Add Department Modal -->
-    <div class="modal fade" id="addDepartmentModal" tabindex="-1" aria-labelledby="addDepartmentModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+    <!-- Add/Edit Department Modal -->
+    <div class="modal fade" id="addDepartmentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addDepartmentModalLabel">Add New Department</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="addDepartmentModalLabel">
+                        <i class="bi bi-building-add"></i> Add New Department
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addDepartmentForm">
-                        <div class="mb-3">
-                            <label for="departmentName" class="form-label">Department Name</label>
-                            <input type="text" class="form-control" id="departmentName" required>
+                    <form id="addDepartmentForm" class="needs-validation" novalidate>
+                        <!-- Basic Information -->
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <h6 class="border-bottom pb-2">Basic Information</h6>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="departmentHead" class="form-label">Department Head</label>
-                            <select class="form-select" id="departmentHead" required>
-                                <option value="">Select Department Head</option>
-                                <!-- Staff will be populated via JavaScript -->
-                            </select>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label">Department Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="departmentName" required>
+                                <div class="invalid-feedback">Please enter department name</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Department Code</label>
+                                <input type="text" class="form-control" id="departmentCode" placeholder="e.g., CS, MATH">
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="reportingTo" class="form-label">Reporting To</label>
-                            <select class="form-select" id="reportingTo" required>
-                                <option value="registrar">Registrar</option>
-                                <option value="president">President</option>
-                            </select>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Department Head <span class="text-danger">*</span></label>
+                                <select class="form-select select2" id="departmentHead" required>
+                                    <option value="">Select Department Head...</option>
+                                    <!-- Staff will be populated via JavaScript -->
+                                </select>
+                                <div class="invalid-feedback">Please select a department head</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Reporting To <span class="text-danger">*</span></label>
+                                <select class="form-select" id="reportingTo" required>
+                                    <option value="registrar">Registrar</option>
+                                    <option value="president">President</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Location & Contact -->
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <h6 class="border-bottom pb-2">Location & Contact</h6>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Building/Location</label>
+                                <input type="text" class="form-control" id="deptLocation" placeholder="e.g., Main Building, Room 101">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Office Phone</label>
+                                <input type="tel" class="form-control" id="deptPhone" placeholder="e.g., +1 234 567 890">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Office Email</label>
+                                <input type="email" class="form-control" id="deptEmail" placeholder="dept@school.edu">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Extension</label>
+                                <input type="text" class="form-control" id="deptExtension" placeholder="e.g., 1234">
+                            </div>
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Description / Mission</label>
+                                <textarea class="form-control" id="deptDescription" rows="3" placeholder="Brief description of the department's purpose and mission..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Additional Settings -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h6 class="border-bottom pb-2">Additional Settings</h6>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="hasBudget">
+                                    <label class="form-check-label" for="hasBudget">
+                                        Has separate budget
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="isAcademic">
+                                    <label class="form-check-label" for="isAcademic">
+                                        Academic department
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="saveDepartmentBtn">Save Department</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="saveDepartmentBtn">
+                        <i class="bi bi-check-lg"></i> Save Department
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- View Department Modal -->
+    <div class="modal fade" id="viewDepartmentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Department Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="viewDepartmentContent">
+                    <!-- Populated by JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="editFromView">Edit</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hierarchy Modal -->
+    <div class="modal fade" id="hierarchyModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-diagram-2"></i> Department Hierarchy
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0">Reporting to Registrar</h6>
+                                </div>
+                                <div class="card-body hierarchy-tree" id="registrarHierarchy"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-warning">
+                                    <h6 class="mb-0">Reporting to President</h6>
+                                </div>
+                                <div class="card-body hierarchy-tree" id="presidentHierarchy"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assign Staff Modal -->
+    <div class="modal fade" id="assignStaffModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign Staff to Department</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="assignStaffForm">
+                        <div class="mb-3">
+                            <label class="form-label">Select Staff Members</label>
+                            <select class="form-select select2-multiple" id="staffToAssign" multiple>
+                                <!-- Populated by JavaScript -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Assign Roles</label>
+                            <div class="border rounded p-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="lecturer" id="assignLecturer">
+                                    <label class="form-check-label">Lecturer</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="staff" id="assignStaff">
+                                    <label class="form-check-label">Administrative Staff</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmAssign">Assign</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title text-danger">
+                        <i class="bi bi-exclamation-triangle"></i> Confirm Delete
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <i class="bi bi-building-x fs-1 text-danger mb-3"></i>
+                    <p>Are you sure you want to delete <span id="deleteDeptName"></span>?</p>
+                    <p class="text-muted small">This will unassign all staff members from this department.</p>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Action Bar -->
+    <div class="bulk-action-bar" id="bulkActionBar">
+        <div class="d-flex align-items-center">
+            <span class="me-3" id="selectedCount">0 selected</span>
+            <div class="btn-group">
+                <button class="btn btn-sm btn-outline-success" id="bulkActivate">
+                    <i class="bi bi-check-circle"></i> Activate
+                </button>
+                <button class="btn btn-sm btn-outline-warning" id="bulkDeactivate">
+                    <i class="bi bi-pause-circle"></i> Deactivate
+                </button>
+                <button class="btn btn-sm btn-outline-primary" id="bulkAssign">
+                    <i class="bi bi-person-plus"></i> Assign Staff
+                </button>
+                <button class="btn btn-sm btn-outline-info" id="bulkExport">
+                    <i class="bi bi-download"></i> Export
+                </button>
+            </div>
+            <button class="btn btn-sm btn-link ms-3" id="closeBulkBar">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Departments Help</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Quick Tips</h6>
+                    <ul>
+                        <li>Each department must have a designated head</li>
+                        <li>Departments report to either Registrar or President</li>
+                        <li>Use the hierarchy view to see reporting structure</li>
+                        <li>Bulk operations available for multiple departments</li>
+                    </ul>
+                    
+                    <h6 class="mt-3">Keyboard Shortcuts</h6>
+                    <ul class="list-unstyled">
+                        <li><kbd>Ctrl+N</kbd> - New Department</li>
+                        <li><kbd>Ctrl+F</kbd> - Search</li>
+                        <li><kbd>Ctrl+R</kbd> - Refresh</li>
+                        <li><kbd>Ctrl+E</kbd> - Export</li>
+                        <li><kbd>?</kbd> - Show Help</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/script.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="js/data-service.js"></script>
+    <script src="js/ui-components.js"></script>
+    <script src="js/sidebar.js"></script>
     <script src="js/departments.js"></script>
+    
+    <script>
+        // Initialize page features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Select2
+            $('.select2').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                dropdownParent: $('#addDepartmentModal')
+            });
+            
+            $('.select2-multiple').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                dropdownParent: $('#assignStaffModal')
+            });
+            
+            // Initialize DataTable
+            if ($('#departmentsTable').length) {
+                var table = $('#departmentsTable').DataTable({
+                    responsive: true,
+                    pageLength: 10,
+                    lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                    columnDefs: [
+                        { orderable: false, targets: [0, 8] },
+                        { width: "40px", targets: 0 }
+                    ],
+                    language: {
+                        search: "",
+                        searchPlaceholder: "Search departments..."
+                    }
+                });
+                
+                table.on('draw', function() {
+                    var info = table.page.info();
+                    $('#tableInfo').html(`Showing ${info.start + 1} to ${info.end} of ${info.recordsTotal} entries`);
+                });
+            }
+            
+            // Quick filters
+            $('.quick-filter-btn').click(function() {
+                $(this).toggleClass('active');
+                $(this).siblings().removeClass('active');
+                // Apply filter logic here
+            });
+            
+            $('#clearFilters').click(function() {
+                $('.quick-filter-btn').removeClass('active');
+                $('.quick-filter-btn[data-filter="all"]').addClass('active');
+            });
+            
+            // Toggle view
+            $('#toggleView').click(function() {
+                if ($(this).text().includes('Grid')) {
+                    $('#deptGrid').show();
+                    $('.table-responsive').hide();
+                    $(this).html('<i class="bi bi-table"></i> Table View');
+                } else {
+                    $('#deptGrid').hide();
+                    $('.table-responsive').show();
+                    $(this).html('<i class="bi bi-grid"></i> Grid View');
+                }
+            });
+            
+            // Select all
+            $('#selectAll').change(function() {
+                $('.dept-select').prop('checked', $(this).prop('checked'));
+                updateBulkBar();
+            });
+            
+            // Bulk actions
+            function updateBulkBar() {
+                var count = $('.dept-select:checked').length;
+                if (count > 0) {
+                    $('#selectedCount').text(count + ' selected');
+                    $('#bulkActionBar').addClass('show');
+                } else {
+                    $('#bulkActionBar').removeClass('show');
+                }
+            }
+            
+            $(document).on('change', '.dept-select', updateBulkBar);
+            
+            $('#closeBulkBar').click(function() {
+                $('#bulkActionBar').removeClass('show');
+                $('.dept-select, #selectAll').prop('checked', false);
+            });
+            
+            // Hierarchy view
+            $('#viewHierarchyBtn').click(function() {
+                var modal = new bootstrap.Modal(document.getElementById('hierarchyModal'));
+                
+                // Populate hierarchy trees
+                $('#registrarHierarchy').html('<div class="tree-node">Exams and Records</div><div class="tree-node">Bursary</div><div class="tree-node">Accounting</div>');
+                $('#presidentHierarchy').html('<div class="tree-node">Academic Affairs</div><div class="tree-node">Research</div>');
+                
+                modal.show();
+            });
+            
+            // Export table
+            $('#exportTable').click(function() {
+                // Convert table to CSV
+                var csv = [];
+                var rows = $('#departmentsTable tr');
+                
+                rows.each(function() {
+                    var row = [];
+                    $(this).find('td, th').each(function() {
+                        if ($(this).find('input[type="checkbox"]').length) return;
+                        row.push($(this).text().trim());
+                    });
+                    csv.push(row.join(','));
+                });
+                
+                // Download
+                var csvContent = csv.join('\n');
+                var blob = new Blob([csvContent], { type: 'text/csv' });
+                var url = window.URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'departments_export.csv';
+                a.click();
+                
+                toastr.success('Departments exported successfully');
+            });
+            
+            // Help button
+            $('#helpDepts').click(function() {
+                new bootstrap.Modal(document.getElementById('helpModal')).show();
+            });
+            
+            // Refresh button
+            $('#refreshDepts').click(function() {
+                location.reload();
+            });
+            
+            // Print button
+            $('#printDepts').click(function() {
+                window.print();
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+N for new department
+                if (e.ctrlKey && e.key === 'n') {
+                    e.preventDefault();
+                    $('#addDepartmentModal').modal('show');
+                }
+                
+                // Ctrl+F for search
+                if (e.ctrlKey && e.key === 'f') {
+                    e.preventDefault();
+                    $('.dataTables_filter input').focus();
+                }
+                
+                // Ctrl+R for refresh
+                if (e.ctrlKey && e.key === 'r') {
+                    e.preventDefault();
+                    $('#refreshDepts').click();
+                }
+                
+                // ? for help
+                if (e.key === '?' && !e.ctrlKey) {
+                    e.preventDefault();
+                    $('#helpDepts').click();
+                }
+            });
+            
+            // Initialize toastr
+            toastr.options = {
+                positionClass: 'toast-top-right',
+                progressBar: true,
+                timeOut: 3000
+            };
+        });
+    </script>
 </body>
 </html>
