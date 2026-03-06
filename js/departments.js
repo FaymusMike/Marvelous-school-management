@@ -232,8 +232,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 btn.addEventListener('click', () => handleEditDepartment(btn.dataset.id));
             });
 
+            // FIXED: Added missing opening parenthesis and correct arrow function syntax
             document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click') => handleDeleteDepartment(btn.dataset.id));
+                btn.addEventListener('click', () => handleDeleteDepartment(btn.dataset.id));
             });
 
             document.querySelectorAll('.staff-btn').forEach(btn => {
